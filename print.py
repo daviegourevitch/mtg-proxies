@@ -53,10 +53,44 @@ if __name__ == "__main__":
         default=None,
         metavar="COLOR",
     )
+    parser.add_argument(
+        "--xshift",
+        help='The amount to shift all cards to the left. Can be negative. (default: %(default)s)',
+        type=int,
+        default=4,
+        metavar="XSHIFT",
+    )
+    parser.add_argument(
+        "--yshift",
+        help='The amount to shift all cards down. Can be negative. (default: %(default)s)',
+        type=int,
+        default=2,
+        metavar="YSHIFT",
+    )
+    parser.add_argument(
+        "--xmargin",
+        help='The amount of space to put between the left and right of all cards. (default: %(default)s)',
+        type=int,
+        default=4,
+        metavar="XMARGIN",
+    )
+    parser.add_argument(
+        "--ymargin",
+        help='The amount of space to put between the top and bottom of all cards. (default: %(default)s)',
+        type=int,
+        default=2,
+        metavar="YMARGIN",
+    )
+    parser.add_argument(
+        "--hidebacks",
+        action="store_true",
+        help='If specified, only the front face of double-sided cards will be included. (default: %(default)s)',
+        default=False,
+    )
     args = parser.parse_args()
 
     # Parse decklist
-    decklist = parse_decklist_spec(args.decklist)
+    decklist = parse_decklist_spec(args.decklist, args.hidebacks is not None)
 
     # Fetch scans
     images = fetch_scans_scryfall(decklist)
@@ -76,6 +110,10 @@ if __name__ == "__main__":
             cardsize=np.array([2.5, 3.5]) * 25.4 * args.scale,
             border_crop=args.border_crop,
             background_color=background_color,
+            xshift=args.xshift,
+            yshift=args.yshift,
+            xmargin=args.xmargin,
+            ymargin=args.ymargin,
         )
     else:
         print_cards_matplotlib(

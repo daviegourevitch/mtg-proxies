@@ -6,14 +6,14 @@ from mtgproxies.decklists import Decklist
 from mtgproxies.decklists.sanitizing import validate_card_name, validate_print
 
 
-def parse_decklist(manastack_id: str, zones: list[str] = ["commander", "mainboard"]):
+def parse_decklist(manastack_id: str, zones: list[str] = ["commander", "mainboard"], hidebacks: bool = False):
     """Parse a decklist from manastack.
 
     Args:
         manastack_id: Deck list id as shown in the deckbuilder URL
         zones: List of zones to include. Available are: `mainboard`, `commander`, `sideboard` and `maybeboard`
     """
-    decklist = Decklist()
+    decklist = Decklist(hidebacks)
     warnings = []
     ok = True
 

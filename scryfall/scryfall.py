@@ -163,7 +163,7 @@ def get_cards(database: str = "default_cards", **kwargs):
     return cards
 
 
-def get_faces(card):
+def get_faces(card, hidebacks):
     """All faces on this card.
 
     For single faced cards, this is just the card.
@@ -174,12 +174,14 @@ def get_faces(card):
     if "image_uris" in card:
         return [card]
     elif "card_faces" in card and "image_uris" in card["card_faces"][0]:
+        if (hidebacks):
+            return [card["card_faces"][0]]
         return [face for face in card["card_faces"]]
     else:
         raise ValueError(f"Unknown layout {card['layout']}")
 
 
-def recommend_print(current=None, card_name=None, oracle_id=None, mode="best"):
+def recommend_print(current=None, card_name=None, oracle_id=None, mode="best", hidebacks: bool = False):
     if current is not None and oracle_id is None:  # Use oracle id of current
         oracle_id = current["oracle_id"]
 
@@ -232,7 +234,7 @@ def recommend_print(current=None, card_name=None, oracle_id=None, mode="best"):
     elif mode == "choices":
         artworks = np.array(
             [
-                get_faces(card)[0]["illustration_id"] if "illustration_id" in get_faces(card)[0] else card["id"]
+                get_faces(card, hidebacks)[0]["illustration_id"] if "illustration_id" in get_faces(card, hidebacks)[0] else card["id"]
                 for card in alternatives
             ]  # Not all cards have illustrations, use id instead
         )

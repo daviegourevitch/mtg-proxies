@@ -103,6 +103,10 @@ def print_cards_fpdf(
     cardsize=np.array([2.5 * 25.4, 3.5 * 25.4]),
     border_crop: int = 14,
     background_color=None,
+    xshift=4,
+    yshift=2,
+    xmargin=4,
+    ymargin=2,
 ):
     """Print a list of cards to a pdf file.
 
@@ -156,11 +160,7 @@ def print_cards_fpdf(
         size = cardsize * (scan_size - [left, top]) / scan_size
 
         # Plot image
-        xmargin = 4
-        ymargin = 2
-        xshift = 4
-        yshift = -2
-        pdf.image(cropped_image, x=(lower[0]+x*xmargin-xshift), y=(lower[1]+y*ymargin+yshift), w=size[0], h=size[1])
+        pdf.image(cropped_image, x=(lower[0]+x*xmargin-xshift), y=(lower[1]+(y*ymargin)-yshift), w=size[0], h=size[1])
 
     tqdm.write(f"Writing to {filepath}")
     pdf.output(filepath, 'F')

@@ -17,6 +17,7 @@ class Card:
     Composed of a count and a Scryfall object."""
     count: int
     card: dict
+    hidebacks: bool
 
     def __getitem__(self, key):
         return self.card[key]
@@ -30,7 +31,7 @@ class Card:
 
         For single faced cards, this is just the front.
         """
-        return [face["image_uris"] for face in scryfall.get_faces(self.card)]
+        return [face["image_uris"] for face in scryfall.get_faces(self.card, self.hidebacks)]
 
     def __format__(self, format_spec):
         if format_spec == "text":
@@ -55,11 +56,12 @@ class Decklist:
 
     Contains cards and comment lines.
     """
+    hidebacks: bool = False
     entries: list[Card | Comment] = field(default_factory=list)
     name: str = None
 
     def append_card(self, count, card) -> None:
-        self.entries.append(Card(count, card))
+        self.entries.append(Card(count, card, self.hidebacks))
 
     def append_comment(self, text) -> None:
         self.entries.append(Comment(text))
@@ -96,7 +98,7 @@ class Decklist:
         return len(self.cards)
 
     @staticmethod
-    def from_scryfall_ids(card_ids) -> Decklist:
+    def from_scryfall_ids(card_ids, hidebacks: bool = False) -> Decklist:
         """Construct a Decklist from scryfall ids.
 
         Multiple instances of the same id are counted.
@@ -104,13 +106,13 @@ class Decklist:
         Args:
             card_ids: List of scryfall ids
         """
-        decklist = Decklist()
+        decklist = Decklist(hidebacks)
         for card_id, count in Counter(card_ids).items():
             decklist.append_card(count, scryfall.card_by_id()[card_id])
         return decklist
 
 
-def parse_decklist(filepath) -> tuple[Decklist, bool, list]:
+def parse_decklist(filepath, hidebacks: bool = False) -> tuple[Decklist, bool, list]:
     """Parse card information from a decklist in text or MtG Arena (or mixed) format.
 
     E.g.:
@@ -127,7 +129,7 @@ def parse_decklist(filepath) -> tuple[Decklist, bool, list]:
         warnings: List of (entry, warning) tuples
     """
     with open(filepath, "r", encoding="utf-8") as f:
-        decklist, ok, warnings = parse_decklist_stream(f)
+        decklist, ok, warnings = parse_decklist_stream(f, hidebacks=hidebacks)
 
     # Use file name without extension as name
     decklist.name = Path(filepath).stem
@@ -135,13 +137,13 @@ def parse_decklist(filepath) -> tuple[Decklist, bool, list]:
     return decklist, ok, warnings
 
 
-def parse_decklist_stream(stream) -> tuple[Decklist, bool, list]:
+def parse_decklist_stream(stream, hidebacks: bool = False) -> tuple[Decklist, bool, list]:
     """Parse card information from a decklist in text or MtG Arena (or mixed) format from a stream
 
     See:
         parse_decklist
     """
-    decklist = Decklist()
+    decklist = Decklist(hidebacks)
     warnings = []
     ok = True
     for line in stream:

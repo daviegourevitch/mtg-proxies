@@ -15,7 +15,7 @@ def merge_duplicates(decklist: Decklist, identifier: str = "oracle_id") -> Deckl
     """
     cards_by_id = {}
 
-    merged = Decklist()
+    merged = Decklist(decklist.hidebacks)
     for entry in decklist.entries:
         if isinstance(entry, Card):
             card_id = entry[identifier]
