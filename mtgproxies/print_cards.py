@@ -156,7 +156,9 @@ def print_cards_fpdf(
         size = cardsize * (scan_size - [left, top]) / scan_size
 
         # Plot image
-        pdf.image(cropped_image, x=lower[0], y=lower[1], w=size[0], h=size[1])
+        margin = 4
+        shift = 4
+        pdf.image(cropped_image, x=(lower[0]+x*margin-shift), y=(lower[1]+y*margin-shift), w=size[0], h=size[1])
 
     tqdm.write(f"Writing to {filepath}")
     pdf.output(filepath, 'F')
